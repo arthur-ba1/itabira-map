@@ -16,6 +16,7 @@ interface MapLeafletProps {
   onSelectBairro: (bairro: BairroInfo | null) => void
   onBairrosLoaded: (bairros: BairroInfo[]) => void
   focusBairroId: string | null
+  focusPoint: { lat: number; lng: number } | null
   styleMode: StyleMode
   showAssociacoes: boolean
   showUbs: boolean
@@ -149,6 +150,7 @@ export default function MapLeaflet({
   onSelectBairro,
   onBairrosLoaded,
   focusBairroId,
+  focusPoint,
   styleMode,
   showAssociacoes,
   showUbs,
@@ -226,9 +228,31 @@ export default function MapLeaflet({
       },
       center: ITABIRA_CENTER,
       zoom: 13,
+      maxPitch: 0,
+      attributionControl: false,
     })
+    // Controle de atribuição (ⓘ OpenStreetMap) fica melhor à esquerda —
+    // à direita ele brigava com os controles flutuantes do app.
+    map.addControl(new maplibregl.AttributionControl(), 'bottom-left')
 
     mapRef.current = map
+
+    // No PWA standalone do iOS, o WKWebView às vezes calcula a altura real
+    // (com a área segura) errado no primeiro paint e só corrige depois de
+    // algum gesto forçar um reflow — sem isso o mapa fica menor que a tela
+    // até o usuário arrastar. Escuta os eventos de viewport e força o
+    // resize do canvas assim que o navegador recalcular.
+    const forceResize = () => mapRef.current?.resize()
+    window.addEventListener('resize', forceResize)
+    window.addEventListener('orientationchange', forceResize)
+    window.visualViewport?.addEventListener('resize', forceResize)
+    // scrollTo(0,1) é o truque clássico pra cutucar o WebKit a recalcular a
+    // área visível sem esperar o usuário arrastar — funciona mesmo em
+    // página sem scroll de verdade.
+    const resizeTimer = setTimeout(() => {
+      window.scrollTo(0, 1)
+      forceResize()
+    }, 300)
 
     const tooltip = document.createElement('div')
     tooltip.style.position = 'absolute'
@@ -251,6 +275,78 @@ export default function MapLeaflet({
     const abortController = new AbortController()
 
     map.once('load', () => {
+      // Easter egg — um galo na Lagoa do Pontal. Marker HTML em vez de
+      // symbol layer: o texto de layer do MapLibre usa glifos SDF
+      // monocromáticos, não emoji colorido — Marker é um <div> de verdade,
+      // então pega a fonte de emoji nativa do navegador. Marker por si só
+      // tem tamanho fixo em pixels; escalamos manualmente no zoom pra
+      // acompanhar o mapa (mesmo tamanho "real" da lagoa, não da tela). O
+      // scale vai num filho, não no elemento raiz — o MapLibre usa o
+      // transform do elemento raiz pra posicionar o marker, então escrever
+      // ali por cima desalinhava a área clicável a cada zoom.
+      const galoEl = document.createElement('div')
+      const galoInner = document.createElement('div')
+      galoInner.textContent = '🐓'
+      galoInner.style.fontSize = '18px'
+      galoInner.style.lineHeight = '1'
+      galoInner.style.transformOrigin = 'center'
+      galoEl.appendChild(galoInner)
+      galoEl.style.cursor = 'pointer'
+
+      // Só redireciona no 5º clique — as dicas dos 4 primeiros aparecem numa
+      // bolha acima do galo (mesmo estilo da tooltip de hover dos bairros).
+      const galoTip = document.createElement('div')
+      galoTip.style.position = 'absolute'
+      galoTip.style.left = '50%'
+      galoTip.style.bottom = '100%'
+      galoTip.style.transform = 'translate(-50%, -8px)'
+      galoTip.style.padding = '3px 9px'
+      galoTip.style.borderRadius = '6px'
+      galoTip.style.background = 'rgba(17,24,39,0.92)'
+      galoTip.style.color = '#fff'
+      galoTip.style.fontSize = '11px'
+      galoTip.style.fontWeight = '600'
+      galoTip.style.whiteSpace = 'nowrap'
+      galoTip.style.pointerEvents = 'none'
+      galoTip.style.opacity = '0'
+      galoTip.style.transition = 'opacity 0.15s'
+      galoEl.appendChild(galoTip)
+
+      const GALO_HINTS = ['🚫🦊', 'clica de novo...', 'quase lá...', 'só mais um!']
+      let galoClicks = 0
+      let galoTipTimer: ReturnType<typeof setTimeout> | null = null
+      galoEl.addEventListener('click', () => {
+        galoClicks += 1
+        if (galoClicks < 5) {
+          galoTip.textContent = GALO_HINTS[galoClicks - 1]
+          galoTip.style.opacity = '1'
+          if (galoTipTimer) clearTimeout(galoTipTimer)
+          galoTipTimer = setTimeout(() => {
+            galoTip.style.opacity = '0'
+          }, 1600)
+          return
+        }
+        galoClicks = 0
+        galoTip.style.opacity = '0'
+        window.open('https://www.instagram.com/arthuur.ba1', '_blank', 'noopener,noreferrer')
+      })
+      new maplibregl.Marker({ element: galoEl }).setLngLat([-43.18953, -19.62202]).addTo(map)
+
+      const GALO_BASE_ZOOM = 13
+      // Só aparece num zoom mais próximo — some quando o mapa fica muito
+      // afastado (mais confuso que engraçado nesse ponto). Calibrado contra
+      // referência visual do usuário (~zoom 14: bairros com rótulo, mas
+      // ainda sem detalhe de rua).
+      const GALO_MIN_ZOOM = 14
+      const updateGaloScale = () => {
+        const zoom = map.getZoom()
+        const scale = Math.min(Math.max(2 ** (zoom - GALO_BASE_ZOOM), 0.4), 3)
+        galoInner.style.transform = `scale(${scale})`
+        galoEl.style.display = zoom >= GALO_MIN_ZOOM ? '' : 'none'
+      }
+      updateGaloScale()
+      map.on('zoom', updateGaloScale)
+
       fetch(`/data/bairros-completo.geojson?v=${GEOJSON_VERSION}`, { signal: abortController.signal })
         .then((r) => r.json())
         .then((geojson: BairrosCompletoGeoJSON) => {
@@ -336,7 +432,12 @@ export default function MapLeaflet({
             [Math.min(...lngs), Math.min(...lats)],
             [Math.max(...lngs), Math.max(...lats)],
           )
-          map.fitBounds(bounds, { padding: 20, duration: 0 })
+          // A vista inicial fica no centro urbano (ITABIRA_CENTER/zoom já
+          // definidos na criação do mapa) em vez de dar fitBounds em todos
+          // os bairros — isso incluiria zonas rurais bem esparsas e deixaria
+          // o mapa aberto bem distante da cidade. bounds continua servindo
+          // só pra calcular os limites de navegação abaixo.
+          const fitZoom = map.cameraForBounds(bounds, { padding: 20 })?.zoom
 
           // Lock map to Itabira area with generous padding
           const pad = 0.15
@@ -347,7 +448,7 @@ export default function MapLeaflet({
           const dLng = (maxLng - minLng) * pad
           const dLat = (maxLat - minLat) * pad
           map.setMaxBounds([minLng - dLng, minLat - dLat, maxLng + dLng, maxLat + dLat])
-          map.setMinZoom(map.getZoom() - 0.5)
+          if (fitZoom !== undefined) map.setMinZoom(fitZoom - 0.5)
 
           onBairrosLoaded(bairroList.sort((a, b) => a.nome.localeCompare(b.nome)))
           setLoading(false)
@@ -357,42 +458,61 @@ export default function MapLeaflet({
 
           const pointLayerIds = ['associacoes-points', 'ubs-points']
 
-          // Hover state
-          let hoveredId: string | null = null
-          map.on('mousemove', 'bairros-fill', (e) => {
-            // pins têm prioridade sobre o polígono por baixo
-            if (map.queryRenderedFeatures(e.point, { layers: pointLayerIds }).length > 0) {
-              if (hoveredId) {
-                setState(hoveredId, { hover: false })
-                hoveredId = null
+          // Hover só existe com mouse — no touch não tem "tirar o dedo sem
+          // clicar", então mouseleave nunca dispara e o hover fica preso no
+          // polígono tocado (some só quando outro é tocado por cima, mas
+          // persiste durante o arrasto do mapa).
+          const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+
+          // MapLibre sintetiza 'click' a partir de qualquer toque que não
+          // arrasta, sem distinguir toque rápido de segurar parado — isso
+          // fazia "segurar" no bairro abrir as informações dele igual um
+          // toque normal. touchStartTime fica em 0 no mouse, então não afeta
+          // desktop.
+          let touchStartTime = 0
+          map.on('touchstart', () => {
+            touchStartTime = Date.now()
+          })
+          const isLongPress = () => touchStartTime > 0 && Date.now() - touchStartTime > 500
+
+          if (!isTouchDevice) {
+            let hoveredId: string | null = null
+            map.on('mousemove', 'bairros-fill', (e) => {
+              // pins têm prioridade sobre o polígono por baixo
+              if (map.queryRenderedFeatures(e.point, { layers: pointLayerIds }).length > 0) {
+                if (hoveredId) {
+                  setState(hoveredId, { hover: false })
+                  hoveredId = null
+                }
+                return
               }
-              return
-            }
-            const id = String(e.features?.[0]?.id ?? '')
-            if (!id) return
-            if (id !== hoveredId) {
+              const id = String(e.features?.[0]?.id ?? '')
+              if (!id) return
+              if (id !== hoveredId) {
+                if (hoveredId) setState(hoveredId, { hover: false })
+                hoveredId = id
+                setState(hoveredId, { hover: true })
+                map.getCanvas().style.cursor = 'pointer'
+              }
+              const tip = tooltipRef.current
+              const bairro = bairroByIdRef.current.get(id)
+              if (tip && bairro) {
+                tip.textContent = bairro.nome.toUpperCase()
+                tip.style.transform = `translate(${e.point.x + 14}px, ${e.point.y - 12}px)`
+                tip.style.opacity = '1'
+              }
+            })
+            map.on('mouseleave', 'bairros-fill', () => {
               if (hoveredId) setState(hoveredId, { hover: false })
-              hoveredId = id
-              setState(hoveredId, { hover: true })
-              map.getCanvas().style.cursor = 'pointer'
-            }
-            const tip = tooltipRef.current
-            const bairro = bairroByIdRef.current.get(id)
-            if (tip && bairro) {
-              tip.textContent = bairro.nome.toUpperCase()
-              tip.style.transform = `translate(${e.point.x + 14}px, ${e.point.y - 12}px)`
-              tip.style.opacity = '1'
-            }
-          })
-          map.on('mouseleave', 'bairros-fill', () => {
-            if (hoveredId) setState(hoveredId, { hover: false })
-            hoveredId = null
-            map.getCanvas().style.cursor = ''
-            if (tooltipRef.current) tooltipRef.current.style.opacity = '0'
-          })
+              hoveredId = null
+              map.getCanvas().style.cursor = ''
+              if (tooltipRef.current) tooltipRef.current.style.opacity = '0'
+            })
+          }
 
           // Click to select
           map.on('click', 'bairros-fill', (e) => {
+            if (isLongPress()) return
             if (map.queryRenderedFeatures(e.point, { layers: pointLayerIds }).length > 0) return
             const id = String(e.features?.[0]?.id ?? '')
             if (!id) return
@@ -409,6 +529,7 @@ export default function MapLeaflet({
           })
 
           map.on('click', (e) => {
+            if (isLongPress()) return
             const features = map.queryRenderedFeatures(e.point, { layers: ['bairros-fill'] })
             if (features.length === 0 && selectedIdRef.current) {
               setState(selectedIdRef.current, { selected: false })
@@ -423,22 +544,25 @@ export default function MapLeaflet({
             getLabel: (p: GeoJSON.GeoJsonProperties) => string,
             buildLines: (p: GeoJSON.GeoJsonProperties) => (string | null | undefined)[],
           ) => {
-            map.on('mousemove', layerId, (e) => {
-              const f = e.features?.[0]
-              if (!f) return
-              map.getCanvas().style.cursor = 'pointer'
-              const tip = tooltipRef.current
-              if (tip) {
-                tip.textContent = getLabel(f.properties)
-                tip.style.transform = `translate(${e.point.x + 14}px, ${e.point.y - 12}px)`
-                tip.style.opacity = '1'
-              }
-            })
-            map.on('mouseleave', layerId, () => {
-              map.getCanvas().style.cursor = ''
-              if (tooltipRef.current) tooltipRef.current.style.opacity = '0'
-            })
+            if (!isTouchDevice) {
+              map.on('mousemove', layerId, (e) => {
+                const f = e.features?.[0]
+                if (!f) return
+                map.getCanvas().style.cursor = 'pointer'
+                const tip = tooltipRef.current
+                if (tip) {
+                  tip.textContent = getLabel(f.properties)
+                  tip.style.transform = `translate(${e.point.x + 14}px, ${e.point.y - 12}px)`
+                  tip.style.opacity = '1'
+                }
+              })
+              map.on('mouseleave', layerId, () => {
+                map.getCanvas().style.cursor = ''
+                if (tooltipRef.current) tooltipRef.current.style.opacity = '0'
+              })
+            }
             map.on('click', layerId, (e) => {
+              if (isLongPress()) return
               const f = e.features?.[0]
               if (!f) return
               popupRef.current?.remove()
@@ -481,6 +605,10 @@ export default function MapLeaflet({
 
     return () => {
       abortController.abort()
+      window.removeEventListener('resize', forceResize)
+      window.removeEventListener('orientationchange', forceResize)
+      window.visualViewport?.removeEventListener('resize', forceResize)
+      clearTimeout(resizeTimer)
       map.remove()
       mapRef.current = null
       bairroByIdRef.current.clear()
@@ -560,6 +688,17 @@ export default function MapLeaflet({
       )
     }
   }, [focusBairroId])
+
+  // "Ver no mapa" numa associação/UBS — centraliza e aproxima o pino.
+  useEffect(() => {
+    const map = mapRef.current
+    if (!focusPoint || !map) return
+    map.flyTo({
+      center: [focusPoint.lng, focusPoint.lat],
+      zoom: Math.max(map.getZoom(), 17),
+      duration: 800,
+    })
+  }, [focusPoint])
 
   // Visibilidade das camadas de pontos
   useEffect(() => {

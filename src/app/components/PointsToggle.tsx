@@ -1,9 +1,10 @@
 'use client'
 
-import { SlidersHorizontal } from 'lucide-react'
+import { Moon, SlidersHorizontal, Sun } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useIsDark } from '@/hooks/useIsDark'
 import { STYLE_MODES, type StyleMode } from '@/lib/styleMode'
 import { cn } from '@/lib/utils'
 
@@ -25,6 +26,12 @@ export default function PointsToggle({
   onToggleUbs,
 }: PointsToggleProps) {
   const allActive = showAssociacoes && showUbs
+  const isDark = useIsDark()
+
+  function setDark(next: boolean) {
+    document.documentElement.classList.toggle('dark', next)
+    localStorage.setItem('theme', next ? 'dark' : 'light')
+  }
 
   return (
     <Popover>
@@ -67,6 +74,38 @@ export default function PointsToggle({
               <span className="text-[10px] font-medium text-foreground">{layer.label}</span>
             </button>
           ))}
+        </div>
+
+        <div className="my-1.5 border-t border-border" />
+
+        <span className="block px-2 pt-1 pb-1.5 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+          Aparência
+        </span>
+        <div className="flex gap-2 px-1 pb-2">
+          <button
+            type="button"
+            onClick={() => setDark(false)}
+            aria-pressed={!isDark}
+            className={cn(
+              'flex flex-1 flex-col items-center gap-1 rounded-lg border p-2',
+              !isDark ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' : 'border-transparent hover:bg-muted',
+            )}
+          >
+            <Sun className="size-5 text-foreground" />
+            <span className="text-[10px] font-medium text-foreground">Claro</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setDark(true)}
+            aria-pressed={isDark}
+            className={cn(
+              'flex flex-1 flex-col items-center gap-1 rounded-lg border p-2',
+              isDark ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' : 'border-transparent hover:bg-muted',
+            )}
+          >
+            <Moon className="size-5 text-foreground" />
+            <span className="text-[10px] font-medium text-foreground">Escuro</span>
+          </button>
         </div>
 
         <div className="my-1.5 border-t border-border" />

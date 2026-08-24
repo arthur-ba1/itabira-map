@@ -1,15 +1,19 @@
 'use client'
 
+import { Search, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { slugifyBairro } from '@/lib/slug'
 import { STYLE_MODE_STORAGE_KEY, type StyleMode } from '@/lib/styleMode'
+import { cn } from '@/lib/utils'
 import type { BairroInfo } from '@/types/bairro'
 import BairroSearch from './BairroSearch'
 import InfoPanel from './InfoPanel'
 import PointsToggle from './PointsToggle'
-import ThemeToggle from './ThemeToggle'
+
+const GLASS_BUTTON =
+  'flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-white/40 bg-white/70 text-gray-500 shadow-lg backdrop-blur-xl backdrop-saturate-150 hover:text-gray-700 dark:border-white/10 dark:bg-gray-900/60 dark:text-gray-400 dark:hover:text-gray-200'
 
 const MapLeaflet = dynamic(() => import('./MapLeaflet'), { ssr: false })
 
@@ -32,16 +36,24 @@ export default function MapWrapper() {
   const [selectedBairro, setSelectedBairro] = useState<BairroInfo | null>(null)
   const [bairros, setBairros] = useState<BairroInfo[]>([])
   const [focusBairroId, setFocusBairroId] = useState<string | null>(null)
+  // "Ver no mapa" nas associações/UBS — centraliza nesse ponto sem mexer no
+  // bairro selecionado/URL.
+  const [focusPoint, setFocusPoint] = useState<{ lat: number; lng: number } | null>(null)
   // Começa em "multi" (igual ao servidor) pra não gerar hydration mismatch;
   // corrige pro valor salvo assim que montar. O mapa em si (MapLeaflet, só
   // client) lê o localStorage direto e já nasce com a cor certa.
   const [styleMode, setStyleMode] = useState<StyleMode>('multi')
   const [showAssociacoes, setShowAssociacoes] = useState(true)
   const [showUbs, setShowUbs] = useState(true)
+  // Busca no mobile mora embaixo, recolhida numa lupa (drawer fica intocado
+  // por enquanto) — expande sob demanda em vez de ocupar espaço fixo.
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const pendingSlugRef = useRef<string | null>(null)
   const appliedPendingSlugRef = useRef(false)
 
   const handleBairrosLoaded = useCallback((list: BairroInfo[]) => setBairros(list), [])
+
+  const handleFocusPoint = useCallback((lat: number, lng: number) => setFocusPoint({ lat, lng }), [])
 
   useEffect(() => {
     const saved = localStorage.getItem(STYLE_MODE_STORAGE_KEY)
@@ -80,6 +92,7 @@ export default function MapWrapper() {
       setSelectedBairro(bairro)
       setFocusBairroId(bairro.id)
       updateUrl(bairro)
+      setMobileSearchOpen(false)
     },
     [updateUrl],
   )
@@ -112,14 +125,15 @@ export default function MapWrapper() {
           onSelectBairro={handleSelectBairro}
           onBairrosLoaded={handleBairrosLoaded}
           focusBairroId={focusBairroId}
+          focusPoint={focusPoint}
           styleMode={styleMode}
           showAssociacoes={showAssociacoes}
           showUbs={showUbs}
         />
       </div>
 
-      {/* Busca + filtro; no mobile o alternador de tema entra na mesma linha (no desktop ele mora no topo do painel à esquerda) */}
-      <div className="absolute top-[calc(env(safe-area-inset-top)+1rem)] left-1/2 z-[1000] flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-start gap-2">
+      {/* Topo — desktop só: busca + filtro (no mobile o painel de bairros já mora lá sozinho, virou o "dropdown" com o título) */}
+      <div className="absolute top-[calc(env(safe-area-inset-top)+0.5rem)] left-1/2 z-[1000] hidden w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-start gap-2 sm:flex">
         {bairros.length > 0 && <BairroSearch bairros={bairros} onSelect={handleSearchSelect} />}
         <PointsToggle
           styleMode={styleMode}
@@ -129,7 +143,43 @@ export default function MapWrapper() {
           onToggleAssociacoes={() => setShowAssociacoes((v) => !v)}
           onToggleUbs={() => setShowUbs((v) => !v)}
         />
-        <ThemeToggle className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-white/40 bg-white/70 text-gray-500 shadow-lg backdrop-blur-xl backdrop-saturate-150 hover:text-gray-700 sm:hidden dark:border-white/10 dark:bg-gray-900/60 dark:text-gray-400 dark:hover:text-gray-200" />
+      </div>
+
+      {/* Mobile — canto inferior direito: configurações (com o tema junto) empilhadas acima da busca, que vira uma lupa maior e expande sob demanda */}
+      <div
+        className="sm:hidden absolute inset-x-4 z-[999] flex flex-col items-end gap-2"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }}
+      >
+        <PointsToggle
+          styleMode={styleMode}
+          onStyleModeChange={handleStyleModeChange}
+          showAssociacoes={showAssociacoes}
+          showUbs={showUbs}
+          onToggleAssociacoes={() => setShowAssociacoes((v) => !v)}
+          onToggleUbs={() => setShowUbs((v) => !v)}
+        />
+        {mobileSearchOpen ? (
+          <div className="flex w-full items-start gap-2">
+            {bairros.length > 0 && <BairroSearch bairros={bairros} onSelect={handleSearchSelect} autoFocus />}
+            <button
+              type="button"
+              onClick={() => setMobileSearchOpen(false)}
+              aria-label="Fechar busca"
+              className={GLASS_BUTTON}
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setMobileSearchOpen(true)}
+            aria-label="Buscar bairro"
+            className={cn(GLASS_BUTTON, 'h-14 w-14')}
+          >
+            <Search className="size-6" />
+          </button>
+        )}
       </div>
 
       <InfoPanel
@@ -137,6 +187,7 @@ export default function MapWrapper() {
         bairros={bairros}
         onClose={() => handleSelectBairro(null)}
         onSelectBairro={handleSearchSelect}
+        onFocusPoint={handleFocusPoint}
       />
     </div>
   )

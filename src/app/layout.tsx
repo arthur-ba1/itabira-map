@@ -15,6 +15,16 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Mapa de Itabira',
   description: 'Visualizador interativo de bairros de Itabira - MG',
+  // No Safari normal (aba do navegador) não tem como deixar as barras
+  // realmente transparentes — isso só funciona em modo PWA (adicionado à
+  // tela de início). "black-translucent" é o que deixa o mapa aparecer por
+  // baixo da status bar nesse modo; os ícones da status bar ficam claros,
+  // então isso não é adaptativo ao tema claro/escuro do app.
+  appleWebApp: {
+    capable: true,
+    title: 'Mapa de Itabira',
+    statusBarStyle: 'black-translucent',
+  },
 }
 
 export const viewport: Viewport = {

@@ -2,16 +2,19 @@
 
 import { useState } from 'react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
+import { cn } from '@/lib/utils'
 import type { BairroInfo } from '@/types/bairro'
 
 interface BairroSearchProps {
   bairros: BairroInfo[]
   onSelect: (bairro: BairroInfo) => void
+  autoFocus?: boolean
+  className?: string
 }
 
 const MAX_RESULTS = 8
 
-export default function BairroSearch({ bairros, onSelect }: BairroSearchProps) {
+export default function BairroSearch({ bairros, onSelect, autoFocus, className }: BairroSearchProps) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
 
@@ -29,9 +32,13 @@ export default function BairroSearch({ bairros, onSelect }: BairroSearchProps) {
   return (
     <Command
       shouldFilter={false}
-      className="relative min-w-0 flex-1 overflow-visible rounded-xl border border-white/40 bg-white/70 shadow-lg backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-gray-900/60"
+      className={cn(
+        'relative min-w-0 flex-1 overflow-visible rounded-xl border border-white/40 bg-white/70 shadow-lg backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-gray-900/60',
+        className,
+      )}
     >
       <CommandInput
+        autoFocus={autoFocus}
         value={query}
         onValueChange={(value) => {
           setQuery(value)
@@ -42,7 +49,10 @@ export default function BairroSearch({ bairros, onSelect }: BairroSearchProps) {
         placeholder="Buscar bairro..."
       />
       {open && query.trim().length > 0 && (
-        <div className="absolute inset-x-0 top-full z-[1000] mt-1 max-h-60 overflow-x-hidden overflow-y-auto rounded-xl border border-white/40 bg-white/70 shadow-lg backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-gray-900/60">
+        // No mobile a busca fica perto do rodapé — abrir pra baixo estoura a
+        // tela. Abre pra cima lá; no desktop (busca no topo) continua pra
+        // baixo, como antes.
+        <div className="absolute inset-x-0 bottom-full z-[1000] mb-1 max-h-60 overflow-x-hidden overflow-y-auto rounded-xl border border-white/40 bg-white/70 shadow-lg backdrop-blur-xl backdrop-saturate-150 sm:top-full sm:bottom-auto sm:mt-1 sm:mb-0 dark:border-white/10 dark:bg-gray-900/60">
           <CommandList className="max-h-none overflow-visible">
             <CommandEmpty className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500">
               Nenhum bairro encontrado

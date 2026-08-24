@@ -9,6 +9,10 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  /* Fallback pra qualquer sliver que o mapa não cubra (ex.: PWA standalone,
+     onde não tem barra nativa pra "disfarçar" isso) — sem isso, cai no preto
+     padrão do WebView em vez da cor do tema. */
+  background-color: var(--background);
 }
 
 /* 100% sozinho não conta a área atrás da barra dinâmica do Safari no iOS;
