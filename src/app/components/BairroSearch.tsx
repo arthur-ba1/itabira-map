@@ -23,6 +23,8 @@ export default function BairroSearch({ bairros, onSelect, autoFocus, className }
       ? []
       : bairros.filter((b) => b.nome.toLowerCase().includes(query.toLowerCase())).slice(0, MAX_RESULTS)
 
+  const visible = open && query.trim().length > 0
+
   function handleSelect(bairro: BairroInfo) {
     setQuery(bairro.nome.toUpperCase())
     setOpen(false)
@@ -48,31 +50,37 @@ export default function BairroSearch({ bairros, onSelect, autoFocus, className }
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         placeholder="Buscar bairro..."
       />
-      {open && query.trim().length > 0 && (
-        // No mobile a busca fica perto do rodapé — abrir pra baixo estoura a
-        // tela. Abre pra cima lá; no desktop (busca no topo) continua pra
-        // baixo, como antes.
-        <div className="absolute inset-x-0 bottom-full z-[1000] mb-1 max-h-60 overflow-x-hidden overflow-y-auto rounded-xl border border-white/40 bg-white/70 shadow-lg backdrop-blur-xl backdrop-saturate-150 sm:top-full sm:bottom-auto sm:mt-1 sm:mb-0 dark:border-white/10 dark:bg-gray-900/60">
-          <CommandList className="max-h-none overflow-visible">
-            <CommandEmpty className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500">
-              Nenhum bairro encontrado
-            </CommandEmpty>
-            <CommandGroup>
-              {filtered.map((b) => (
-                <CommandItem
-                  key={b.id}
-                  value={b.id}
-                  onSelect={() => handleSelect(b)}
-                  onMouseDown={(e) => e.preventDefault()}
-                  className="cursor-pointer px-4 py-2.5 text-sm text-gray-700 data-selected:bg-blue-500/10 data-selected:text-blue-700 dark:text-gray-300 dark:data-selected:bg-blue-400/15 dark:data-selected:text-blue-300"
-                >
-                  {b.nome.toUpperCase()}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </div>
-      )}
+      {/* Fica sempre montado (só escondido via CSS) em vez de entrar/sair do
+          DOM — o CommandInput aponta aria-controls pro id desta lista, e
+          desmontá-la deixava a referência quebrada enquanto fechada. */}
+      <div
+        className={cn(
+          // No mobile a busca fica perto do rodapé — abrir pra baixo estoura a
+          // tela. Abre pra cima lá; no desktop (busca no topo) continua pra
+          // baixo, como antes.
+          'absolute inset-x-0 bottom-full z-[1000] mb-1 max-h-60 overflow-x-hidden overflow-y-auto rounded-xl border border-white/40 bg-white/70 shadow-lg backdrop-blur-xl backdrop-saturate-150 sm:top-full sm:bottom-auto sm:mt-1 sm:mb-0 dark:border-white/10 dark:bg-gray-900/60',
+          !visible && 'hidden',
+        )}
+      >
+        <CommandList className="max-h-none overflow-visible">
+          <CommandEmpty className="px-4 py-3 text-sm text-gray-400 dark:text-gray-500">
+            Nenhum bairro encontrado
+          </CommandEmpty>
+          <CommandGroup>
+            {filtered.map((b) => (
+              <CommandItem
+                key={b.id}
+                value={b.id}
+                onSelect={() => handleSelect(b)}
+                onMouseDown={(e) => e.preventDefault()}
+                className="cursor-pointer px-4 py-2.5 text-sm text-gray-700 data-selected:bg-blue-500/10 data-selected:text-blue-700 dark:text-gray-300 dark:data-selected:bg-blue-400/15 dark:data-selected:text-blue-300"
+              >
+                {b.nome.toUpperCase()}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </div>
     </Command>
   )
 }

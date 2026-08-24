@@ -30,7 +30,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  // >=5 é o mínimo que o Lighthouse aceita sem marcar como bloqueio de
+  // acessibilidade (pinch-zoom assistivo) — não trava mais o zoom do
+  // usuário, só evita o auto-zoom que o Safari faz em inputs.
+  maximumScale: 5,
   // Deixa o conteúdo se estender por baixo do notch/status bar e da faixa
   // do home indicator no iOS, em vez de parar na área "segura". Sem uma
   // theme-color sólida forçando opacidade, o Safari usa a barra translúcida
