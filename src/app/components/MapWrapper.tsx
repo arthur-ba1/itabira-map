@@ -119,7 +119,7 @@ export default function MapWrapper() {
       </div>
 
       {/* Busca + filtro; no mobile o alternador de tema entra na mesma linha (no desktop ele mora no topo do painel à esquerda) */}
-      <div className="absolute top-4 left-1/2 z-[1000] flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-start gap-2">
+      <div className="absolute top-[calc(env(safe-area-inset-top)+1rem)] left-1/2 z-[1000] flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-start gap-2">
         {bairros.length > 0 && <BairroSearch bairros={bairros} onSelect={handleSearchSelect} />}
         <PointsToggle
           styleMode={styleMode}

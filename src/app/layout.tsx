@@ -21,6 +21,14 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  // Deixa o conteúdo se estender por baixo do notch/status bar e da faixa
+  // do home indicator no iOS, em vez de parar na área "segura". Sem uma
+  // theme-color sólida forçando opacidade, o Safari usa a barra translúcida
+  // nativa dele ali — o mapa aparece borrado por trás em vez de uma cor
+  // sólida (e sem isso, sem viewport-fit, ele cai pra preto puro). Os
+  // controles flutuantes usam env(safe-area-inset-*) pra não ficarem
+  // colados/embaixo dessas áreas.
+  viewportFit: 'cover',
 }
 
 const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`

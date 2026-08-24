@@ -84,7 +84,7 @@ export default function InfoPanel({ bairro, bairros, onClose, onSelectBairro }: 
   return (
     <>
       {/* Desktop — título + lista fundidos num único painel à esquerda, expande pra baixo (deixa a cidade à direita livre) */}
-      <aside className="hidden sm:flex absolute top-4 left-4 z-[999] w-80 flex-col">
+      <aside className="hidden sm:flex absolute top-[calc(env(safe-area-inset-top)+1rem)] left-4 z-[999] w-80 flex-col">
         <div
           className={cn(
             'flex items-center gap-1 border border-white/40 bg-white/70 p-1.5 shadow-xl backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-gray-900/60',
@@ -153,7 +153,7 @@ export default function InfoPanel({ bairro, bairros, onClose, onSelectBairro }: 
 
       {/* Mobile — drawer */}
       <div
-        className="sm:hidden fixed inset-x-0 bottom-0 z-[1000] bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl backdrop-saturate-150 rounded-t-2xl shadow-2xl flex flex-col"
+        className="sm:hidden fixed inset-x-0 bottom-[env(safe-area-inset-bottom)] z-[1000] bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl backdrop-saturate-150 rounded-t-2xl shadow-2xl flex flex-col"
         style={{
           height: drawerHeight > 0 ? `${drawerHeight}px` : 0,
           transition: isDragging ? 'none' : 'height 0.3s cubic-bezier(0.32,0.72,0,1)',
