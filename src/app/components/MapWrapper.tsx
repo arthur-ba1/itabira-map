@@ -132,8 +132,10 @@ export default function MapWrapper() {
         />
       </div>
 
-      {/* Topo — desktop só: busca + filtro (no mobile o painel de bairros já mora lá sozinho, virou o "dropdown" com o título) */}
-      <div className="absolute top-[calc(env(safe-area-inset-top)+0.5rem)] left-1/2 z-[1000] hidden w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-start gap-2 sm:flex">
+      {/* Topo — só a partir de 1125px: abaixo disso a sidebar (320px) some espaço
+          demais e a busca centralizada passa por cima dela, então usamos o
+          padrão "lupa recolhida" (como no mobile) até ter largura de sobra */}
+      <div className="absolute top-[calc(env(safe-area-inset-top)+0.5rem)] left-1/2 z-[1000] hidden w-[calc(100%-2rem)] max-w-md min-[1125px]:-translate-x-1/2 min-[1125px]:flex items-start gap-2">
         {bairros.length > 0 && <BairroSearch bairros={bairros} onSelect={handleSearchSelect} />}
         <PointsToggle
           styleMode={styleMode}
@@ -145,9 +147,9 @@ export default function MapWrapper() {
         />
       </div>
 
-      {/* Mobile — canto inferior direito: configurações (com o tema junto) empilhadas acima da busca, que vira uma lupa maior e expande sob demanda */}
+      {/* Abaixo de 1125px (mobile e tablet/desktop estreito) — canto inferior direito: configurações (com o tema junto) empilhadas acima da busca, que vira uma lupa maior e expande sob demanda */}
       <div
-        className="sm:hidden absolute inset-x-4 z-[999] flex flex-col items-end gap-2"
+        className="min-[1125px]:hidden absolute inset-x-4 z-[999] flex flex-col items-end gap-2"
         style={{ bottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }}
       >
         <PointsToggle
