@@ -1,7 +1,6 @@
-import { readFileSync, writeFileSync } from 'fs'
-import { createHash } from 'crypto'
-import { resolve, dirname } from 'path'
-import { fileURLToPath } from 'url'
+import { readFileSync, writeFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SRC = resolve(__dirname, '../public/bairros.geojson')
@@ -12,7 +11,8 @@ const EPSILON = 0.00005
 // --- Ramer-Douglas-Peucker ---
 
 function perpendicularDistance([px, py], [ax, ay], [bx, by]) {
-  const dx = bx - ax, dy = by - ay
+  const dx = bx - ax,
+    dy = by - ay
   if (dx === 0 && dy === 0) return Math.hypot(px - ax, py - ay)
   const t = ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)
   return Math.hypot(px - (ax + t * dx), py - (ay + t * dy))
@@ -20,25 +20,29 @@ function perpendicularDistance([px, py], [ax, ay], [bx, by]) {
 
 function rdp(points, epsilon) {
   if (points.length <= 2) return points
-  let maxDist = 0, maxIdx = 0
+  let maxDist = 0,
+    maxIdx = 0
   for (let i = 1; i < points.length - 1; i++) {
     const d = perpendicularDistance(points[i], points[0], points[points.length - 1])
-    if (d > maxDist) { maxDist = d; maxIdx = i }
+    if (d > maxDist) {
+      maxDist = d
+      maxIdx = i
+    }
   }
   if (maxDist <= epsilon) return [points[0], points[points.length - 1]]
-  return [
-    ...rdp(points.slice(0, maxIdx + 1), epsilon).slice(0, -1),
-    ...rdp(points.slice(maxIdx), epsilon),
-  ]
+  return [...rdp(points.slice(0, maxIdx + 1), epsilon).slice(0, -1), ...rdp(points.slice(maxIdx), epsilon)]
 }
 
-function round(n) { return Math.round(n * 1e6) / 1e6 }
+function round(n) {
+  return Math.round(n * 1e6) / 1e6
+}
 
 function simplifyRing(ring) {
   const points = ring.map(([lng, lat]) => [round(lng), round(lat)])
   const simplified = rdp(points, EPSILON)
   if (simplified.length < 4) return points
-  const first = simplified[0], last = simplified[simplified.length - 1]
+  const first = simplified[0],
+    last = simplified[simplified.length - 1]
   if (first[0] !== last[0] || first[1] !== last[1]) simplified.push(first)
   return simplified
 }
@@ -67,9 +71,8 @@ function buildAdjacency(features) {
   const edgeMap = new Map()
 
   features.forEach((feature, idx) => {
-    const rings = feature.geometry.type === 'MultiPolygon'
-      ? feature.geometry.coordinates.flat(1)
-      : feature.geometry.coordinates
+    const rings =
+      feature.geometry.type === 'MultiPolygon' ? feature.geometry.coordinates.flat(1) : feature.geometry.coordinates
 
     for (const ring of rings) {
       for (let i = 0; i < ring.length - 1; i++) {
@@ -129,7 +132,8 @@ const colors = greedyColor(adj)
 const numColors = Math.max(...colors) + 1
 
 // 2. Simplificar geometria e montar features finais
-let totalBefore = 0, totalAfter = 0
+let totalBefore = 0,
+  totalAfter = 0
 
 const features = raw.features.map((feature, i) => {
   const { id, Name, description } = feature.properties
@@ -155,17 +159,14 @@ const optimized = { type: 'FeatureCollection', features }
 const content = JSON.stringify(optimized)
 writeFileSync(OUT, content)
 
-// Gera hash do conteúdo para cache busting
-const hash = createHash('sha256').update(content).digest('hex').slice(0, 8)
-const manifestPath = resolve(__dirname, '../src/lib/geojson-manifest.ts')
-writeFileSync(manifestPath, `// Gerado automaticamente — não editar\nexport const GEOJSON_VERSION = '${hash}'\n`)
-
 const srcSize = readFileSync(SRC).length
 const outSize = readFileSync(OUT).length
 
 console.log(`\nPontos de coordenada:`)
 console.log(`  Antes:  ${totalBefore.toLocaleString('pt-BR')}`)
-console.log(`  Depois: ${Math.round(totalAfter).toLocaleString('pt-BR')} (−${(100 - totalAfter / totalBefore * 100).toFixed(0)}%)`)
+console.log(
+  `  Depois: ${Math.round(totalAfter).toLocaleString('pt-BR')} (−${(100 - (totalAfter / totalBefore) * 100).toFixed(0)}%)`,
+)
 console.log(`\nColoração:`)
 console.log(`  Cores usadas: ${numColors} (máximo teórico: 4)`)
 for (let c = 0; c < numColors; c++) {
@@ -173,4 +174,4 @@ for (let c = 0; c < numColors; c++) {
 }
 console.log(`\nTamanho:`)
 console.log(`  Original:  ${(srcSize / 1024).toFixed(0)} KB`)
-console.log(`  Otimizado: ${(outSize / 1024).toFixed(0)} KB (−${(100 - outSize / srcSize * 100).toFixed(0)}%)`)
+console.log(`  Otimizado: ${(outSize / 1024).toFixed(0)} KB (−${(100 - (outSize / srcSize) * 100).toFixed(0)}%)`)

@@ -1,4 +1,4 @@
-import type { BairroInfo, BairroFeatureProperties } from '@/types/bairro'
+import type { BairroFeatureProperties, BairroInfo } from '@/types/bairro'
 
 export function parseBairroProperties(props: BairroFeatureProperties): BairroInfo {
   return {
@@ -7,5 +7,8 @@ export function parseBairroProperties(props: BairroFeatureProperties): BairroInf
     area_ha: props.area_ha,
     perim_km: props.perim_km,
     docLegal: props.doc_legal,
+    census: props.census,
+    associacoes: props.associacoes,
+    ubs: props.ubs,
   }
 }

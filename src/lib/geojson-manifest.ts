@@ -1,2 +1,2 @@
 // Gerado automaticamente — não editar
-export const GEOJSON_VERSION = '7b42c488'
+export const GEOJSON_VERSION = 'd63cf88a'

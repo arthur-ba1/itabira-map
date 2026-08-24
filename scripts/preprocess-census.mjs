@@ -1,5 +1,5 @@
-import fs from 'fs'
-import readline from 'readline'
+import fs from 'node:fs'
+import readline from 'node:readline'
 
 const DATA_DIR = 'public/data'
 const OUT_FILE = 'public/data/census.json'
@@ -10,9 +10,14 @@ function parseCSVLine(line) {
   let inQuotes = false
   for (let i = 0; i < line.length; i++) {
     const ch = line[i]
-    if (ch === '"') { inQuotes = !inQuotes }
-    else if (ch === ',' && !inQuotes) { result.push(current.trim()); current = '' }
-    else { current += ch }
+    if (ch === '"') {
+      inQuotes = !inQuotes
+    } else if (ch === ',' && !inQuotes) {
+      result.push(current.trim())
+      current = ''
+    } else {
+      current += ch
+    }
   }
   result.push(current.trim())
   return result
@@ -28,15 +33,22 @@ async function parseCSV(filename) {
   for await (const line of rl) {
     if (!line.trim()) continue
     const cols = parseCSVLine(line)
-    if (!headers) { headers = cols; continue }
+    if (!headers) {
+      headers = cols
+      continue
+    }
     const obj = {}
-    headers.forEach((h, i) => { obj[h] = cols[i] ?? '' })
+    headers.forEach((h, i) => {
+      obj[h] = cols[i] ?? ''
+    })
     rows.push(obj)
   }
   return rows
 }
 
-function n(v) { return parseInt(v, 10) || 0 }
+function n(v) {
+  return parseInt(v, 10) || 0
+}
 
 async function main() {
   console.log('Processando dados censitários...')
@@ -54,7 +66,7 @@ async function main() {
 
   const index = (rows, fn) => {
     for (const row of rows) {
-      const id = row['bairro_id']
+      const id = row.bairro_id
       if (!id) continue
       if (!byId[id]) byId[id] = {}
       fn(byId[id], row)
@@ -80,7 +92,9 @@ async function main() {
   })
 
   index(obitos, (b, r) => {
-    b.obitosHouseholds = n(r['Existe pessoa falecida, no período de janeiro de 2019 a julho de 2022, que morava no domicílio'])
+    b.obitosHouseholds = n(
+      r['Existe pessoa falecida, no período de janeiro de 2019 a julho de 2022, que morava no domicílio'],
+    )
   })
 
   index(dom, (b, r) => {
@@ -99,4 +113,7 @@ async function main() {
   console.log(`  ${Object.keys(byId).length} bairros → ${OUT_FILE}`)
 }
 
-main().catch((e) => { console.error(e); process.exit(1) })
+main().catch((e) => {
+  console.error(e)
+  process.exit(1)
+})

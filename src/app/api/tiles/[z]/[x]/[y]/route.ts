@@ -1,11 +1,8 @@
 const OSM_SUBDOMAINS = ['a', 'b', 'c']
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ z: string; x: string; y: string }> }
-) {
+export async function GET(_req: Request, { params }: { params: Promise<{ z: string; x: string; y: string }> }) {
   const { z, x, y } = await params
-  const sub = OSM_SUBDOMAINS[(parseInt(x) + parseInt(y)) % 3]
+  const sub = OSM_SUBDOMAINS[(parseInt(x, 10) + parseInt(y, 10)) % 3]
   const upstream = `https://${sub}.tile.openstreetmap.org/${z}/${x}/${y}.png`
 
   const tile = await fetch(upstream, {

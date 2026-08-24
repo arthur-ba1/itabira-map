@@ -17,6 +17,37 @@ export interface CensusData {
   quilombolas: number
 }
 
+export interface AssociacaoInfo {
+  codigo: number
+  nome: string
+  bairro_raw: string
+  bairros_que_compoe: string
+  cnpj: string
+  fundacao: string
+  endereco: string
+  numero: string
+  complemento: string
+  cep: string
+  email: string
+  presidente: string
+  telefone_presidente: string
+  bairro_id: string | null
+  lat: number | null
+  lng: number | null
+  geocode_source?: string
+}
+
+export interface UbsInfo {
+  unidade: string
+  endereco: string
+  telefone: string
+  bairro_raw: string
+  bairro_id: string | null
+  lat: number | null
+  lng: number | null
+  geocode_source?: string
+}
+
 export interface BairroInfo {
   id: string
   nome: string
@@ -24,6 +55,8 @@ export interface BairroInfo {
   perim_km: number
   docLegal: string
   census?: CensusData
+  associacoes?: AssociacaoInfo[]
+  ubs?: UbsInfo[]
 }
 
 export interface BairroFeatureProperties {
@@ -33,4 +66,14 @@ export interface BairroFeatureProperties {
   perim_km: number
   doc_legal: string
   color_idx: number
+  census?: CensusData
+  associacoes?: AssociacaoInfo[]
+  ubs?: UbsInfo[]
+}
+
+export interface BairrosCompletoGeoJSON {
+  type: 'FeatureCollection'
+  features: GeoJSON.Feature<GeoJSON.Geometry, BairroFeatureProperties>[]
+  associacoes: AssociacaoInfo[]
+  ubs: UbsInfo[]
 }

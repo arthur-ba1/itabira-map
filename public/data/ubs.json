@@ -1,0 +1,309 @@
+[
+  {
+    "unidade": "Água Fresca",
+    "endereco": "Rua Marechal Jofre, s/n, Bairro Água Fresca",
+    "telefone": "3839-2222",
+    "bairro_raw": "Água Fresca",
+    "bairro_id": "ID_00001",
+    "lat": -19.6436011,
+    "lng": -43.2201913,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF ÁGUA FRESCA / JUCA BATISTA"
+  },
+  {
+    "unidade": "Juca Batista",
+    "endereco": "Rua Marechal Jofre, s/n, Bairro Água Fresca",
+    "telefone": "3839-2495",
+    "bairro_raw": "Água Fresca",
+    "bairro_id": "ID_00001",
+    "lat": -19.6436011,
+    "lng": -43.2201913,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF ÁGUA FRESCA / JUCA BATISTA"
+  },
+  {
+    "unidade": "Amazonas",
+    "endereco": "Avenida Brasil, nº 50, Bairro Areão",
+    "telefone": "3839-2225",
+    "bairro_raw": "Areão",
+    "bairro_id": "ID_00005",
+    "lat": -19.636649133165438,
+    "lng": -43.238986609982014,
+    "geocode_source": "bairro_centroid"
+  },
+  {
+    "unidade": "Areão",
+    "endereco": "Avenida Brasil, nº 50, Bairro Areão",
+    "telefone": "3839-2482",
+    "bairro_raw": "Areão",
+    "bairro_id": "ID_00005",
+    "lat": -19.636649133165438,
+    "lng": -43.238986609982014,
+    "geocode_source": "bairro_centroid"
+  },
+  {
+    "unidade": "Barreiro",
+    "endereco": "MG 129, nº 177, Bairro Barreiro",
+    "telefone": "3839-2866",
+    "bairro_raw": "Barreiro",
+    "bairro_id": "ID_00007",
+    "lat": -19.684820769577865,
+    "lng": -43.229456827778435,
+    "geocode_source": "bairro_centroid"
+  },
+  {
+    "unidade": "Bela Vista",
+    "endereco": "Rua Cônego Guilhermino Pereira, nº 293, Bairro Bela Vista",
+    "telefone": "3839-2486",
+    "bairro_raw": "Bela Vista",
+    "bairro_id": "ID_00008",
+    "lat": -19.6169761,
+    "lng": -43.208747,
+    "geocode_source": "google_maps",
+    "geocode_match": "Unidade Básica de Saúde - PSF Bela Vista - Cidade de Itabira - MG"
+  },
+  {
+    "unidade": "Campestre",
+    "endereco": "Av. Cauê, nº 914, Bairro Campestre",
+    "telefone": "3839-2487",
+    "bairro_raw": "Campestre",
+    "bairro_id": "ID_00010",
+    "lat": -19.6163443,
+    "lng": -43.215503,
+    "geocode_source": "google_maps",
+    "geocode_match": "psf campestre"
+  },
+  {
+    "unidade": "Chapada",
+    "endereco": "Rodovia MG 129, s/nº, Bairro Chapada",
+    "telefone": "3839-2927",
+    "bairro_raw": "Chapada",
+    "bairro_id": "ID_00013",
+    "lat": -19.711156926709954,
+    "lng": -43.32204159478203,
+    "geocode_source": "bairro_centroid"
+  },
+  {
+    "unidade": "Centro",
+    "endereco": "Rua Nova Era, nº 65, Bairro Centro",
+    "telefone": "3839-2488",
+    "bairro_raw": "Centro",
+    "bairro_id": "ID_00012",
+    "lat": -19.624537561794025,
+    "lng": -43.22700917232227,
+    "geocode_source": "bairro_centroid"
+  },
+  {
+    "unidade": "Clóvis Alvim",
+    "endereco": "Av. Fábio Pires, nº 271, Bairro Clóvis Alvim I",
+    "telefone": "3839-2165",
+    "bairro_raw": "Clóvis Alvim I",
+    "bairro_id": "ID_00015",
+    "lat": -19.6466383,
+    "lng": -43.2305807,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF Clóvis Alvim"
+  },
+  {
+    "unidade": "Eldorado",
+    "endereco": "Rua das Margaridas, nº 650, Bairro Eldorado",
+    "telefone": "3839-2223",
+    "bairro_raw": "Eldorado",
+    "bairro_id": "ID_00026",
+    "lat": -19.6220457,
+    "lng": -43.2132684,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF ELDORADO"
+  },
+  {
+    "unidade": "Fênix I e II",
+    "endereco": "Rua Três, nº 59, Bairro Bálsamos – Res. Pedras do Vale",
+    "telefone": "3839-2489",
+    "bairro_raw": "Bálsamos",
+    "bairro_id": "ID_00006",
+    "lat": -19.66669449104646,
+    "lng": -43.241854842006866,
+    "geocode_source": "bairro_centroid"
+  },
+  {
+    "unidade": "Gabiroba de Baixo",
+    "endereco": "Avenida dos Vereadores, nº 05, Bairro Gabiroba",
+    "telefone": "3839-2491",
+    "bairro_raw": "Gabiroba",
+    "bairro_id": "ID_00029",
+    "lat": -19.6494326,
+    "lng": -43.2158774,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF Gabiroba (de baixo)"
+  },
+  {
+    "unidade": "Gabiroba de Cima I e II",
+    "endereco": "Rua dos Escritores, nº 160, Bairro Gabiroba",
+    "telefone": "3839-2492",
+    "bairro_raw": "Gabiroba",
+    "bairro_id": "ID_00029",
+    "lat": -19.6494869,
+    "lng": -43.2138198,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF Gabiroba (de cima)"
+  },
+  {
+    "unidade": "Ipoema",
+    "endereco": "Praça Augusto Guerra, s/nº, Ipoema",
+    "telefone": "3839-2780",
+    "bairro_raw": "Ipoema",
+    "bairro_id": "ID_00032",
+    "lat": -19.619235205956624,
+    "lng": -43.43546888056923,
+    "geocode_source": "bairro_centroid"
+  },
+  {
+    "unidade": "João XXIII",
+    "endereco": "Rua Hidemburgo Gonçalves, nº 80, Bairro Fênix",
+    "telefone": "3839-2400",
+    "bairro_raw": "Fênix",
+    "bairro_id": "ID_00028",
+    "lat": -19.6540628,
+    "lng": -43.2333324,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF João XXIII"
+  },
+  {
+    "unidade": "Machado",
+    "endereco": "Rua Hidemburgo Gonçalves, nº 80, Bairro Fênix",
+    "telefone": "3839-2497",
+    "bairro_raw": "Fênix",
+    "bairro_id": "ID_00028",
+    "lat": -19.6540581,
+    "lng": -43.2340714,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF Machado"
+  },
+  {
+    "unidade": "Major Lage",
+    "endereco": "Rua Hematita, nº 19 A, Bairro Major Lage",
+    "telefone": "3839-2324",
+    "bairro_raw": "Major Lage",
+    "bairro_id": "ID_00042",
+    "lat": -19.6339336,
+    "lng": -43.2306652,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF Major Lage"
+  },
+  {
+    "unidade": "N. Senhora das Oliveiras",
+    "endereco": "Rua Ouro Preto, nº 973, Bairro N Sra. Oliveiras",
+    "telefone": "3839-2498",
+    "bairro_raw": "N Sra. Oliveiras",
+    "bairro_id": "ID_00046",
+    "lat": -19.6263045,
+    "lng": -43.2037998,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF JARDIM DAS OLIVEIRAS"
+  },
+  {
+    "unidade": "Nova Vista",
+    "endereco": "Rua Esperança, nº 70, Bairro Nova Vista",
+    "telefone": "3839-2499",
+    "bairro_raw": "Nova Vista",
+    "bairro_id": "ID_00047",
+    "lat": -19.6220136,
+    "lng": -43.2045305,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF NOVA VISTA"
+  },
+  {
+    "unidade": "Pará",
+    "endereco": "Rua Ipoema, nº 105, Bairro Pará",
+    "telefone": "3839-2483",
+    "bairro_raw": "Pará",
+    "bairro_id": "ID_00050",
+    "lat": -19.6228877,
+    "lng": -43.2307434,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF Pará"
+  },
+  {
+    "unidade": "Pedreira I / Pedreira II",
+    "endereco": "Travessa Pássaro Verde, nº 100, Bairro Pedreira",
+    "telefone": "3839-2484",
+    "bairro_raw": "Pedreira",
+    "bairro_id": "ID_00051",
+    "lat": -19.5953913,
+    "lng": -43.1949632,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF PEDREIRA"
+  },
+  {
+    "unidade": "Praia I",
+    "endereco": "Av. João Camilo de Oliveira Torres, nº 1172, Bairro Praia",
+    "telefone": "3831-3819",
+    "bairro_raw": "Praia",
+    "bairro_id": "ID_00053",
+    "lat": -19.633832214969758,
+    "lng": -43.19980711631795,
+    "geocode_source": "bairro_centroid"
+  },
+  {
+    "unidade": "Juca Rosa",
+    "endereco": "Av. Prefeito Li Guerra, s/nº, Bairro Praia",
+    "telefone": "3839-2496",
+    "bairro_raw": "Praia",
+    "bairro_id": "ID_00053",
+    "lat": -19.633832214969758,
+    "lng": -43.19980711631795,
+    "geocode_source": "bairro_centroid"
+  },
+  {
+    "unidade": "Praia II",
+    "endereco": "Av. Prefeito Li Guerra, s/nº, Bairro Praia",
+    "telefone": "3839-2224",
+    "bairro_raw": "Praia",
+    "bairro_id": "ID_00053",
+    "lat": -19.630171,
+    "lng": -43.2077369,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF PRAIA 2 / JUCA ROSA"
+  },
+  {
+    "unidade": "Santa Marta / Santa Ruth",
+    "endereco": "Rua Quatrocentos, nº 130, Bairro Monsenhor José Lopes",
+    "telefone": "3839-2485",
+    "bairro_raw": "Monsenhor José Lopes",
+    "bairro_id": "ID_00044",
+    "lat": -19.6571637,
+    "lng": -43.2292808,
+    "geocode_source": "google_maps",
+    "geocode_match": "PSF Santa Marta-Santa Ruth"
+  },
+  {
+    "unidade": "Senhora do Carmo",
+    "endereco": "Rua do Campinho, s/nº, Bairro Centro - Senhora do Carmo",
+    "telefone": "3839-2766",
+    "bairro_raw": "Centro - Senhora do Carmo",
+    "bairro_id": "ID_00068",
+    "lat": -19.514565130851103,
+    "lng": -43.37256080588635,
+    "geocode_source": "bairro_centroid"
+  },
+  {
+    "unidade": "Vila Bethânia",
+    "endereco": "Rua Emaús, nº 41, Bairro Vila Bethânia",
+    "telefone": "3839-2935",
+    "bairro_raw": "Vila Bethânia",
+    "bairro_id": "ID_00072",
+    "lat": -19.64892481040078,
+    "lng": -43.220794245783104,
+    "geocode_source": "bairro_centroid"
+  },
+  {
+    "unidade": "Vila Sta Rosa",
+    "endereco": "Rua Marajó, s/nº, Bairro Vila Santa Rosa",
+    "telefone": "3839-2493",
+    "bairro_raw": "Vila Santa Rosa",
+    "bairro_id": "ID_00076",
+    "lat": -19.630538129893644,
+    "lng": -43.22421301022414,
+    "geocode_source": "bairro_centroid"
+  }
+]
