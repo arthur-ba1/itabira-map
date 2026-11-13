@@ -120,7 +120,7 @@ function fillColor(mode: StyleMode): maplibregl.ExpressionSpecification | string
 }
 
 // Contorno "#555" tem contraste bom no basemap OSM claro, mas quase some
-// sobre o CARTO Dark Matter — troca para um cinza claro nesse caso.
+// sobre o basemap escuro — troca para um cinza claro nesse caso.
 function lineColor(mode: StyleMode, isDark: boolean): string {
   if (mode === 'mono') return '#2563eb'
   return isDark ? '#94a3b8' : '#555'
@@ -132,13 +132,6 @@ const OSM_TILES = [
   'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
 ]
 const OSM_ATTRIBUTION = '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
-const CARTO_DARK_TILES = [
-  'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-  'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-  'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-  'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-]
-const CARTO_ATTRIBUTION = `${OSM_ATTRIBUTION} © <a href="https://carto.com/attributions">CARTO</a>`
 
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
@@ -205,24 +198,23 @@ export default function MapLeaflet({
             attribution: OSM_ATTRIBUTION,
             maxzoom: 19,
           },
-          'osm-dark': {
-            type: 'raster',
-            tiles: CARTO_DARK_TILES,
-            tileSize: 256,
-            attribution: CARTO_ATTRIBUTION,
-            maxzoom: 19,
-          },
         },
         layers: [
           { id: 'osm', type: 'raster', source: 'osm', layout: { visibility: isDark ? 'none' : 'visible' } },
           {
             id: 'osm-dark',
             type: 'raster',
-            source: 'osm-dark',
+            source: 'osm',
             layout: { visibility: isDark ? 'visible' : 'none' },
-            // CARTO Dark Matter é quase preto puro — levanta o preto pra um
-            // cinza mais suave em vez de trocar de provedor.
-            paint: { 'raster-brightness-min': 0.18 },
+            // O CARTO passou a exigir API key, então o tema escuro reaproveita
+            // as tiles do OSM: inverte o brilho (min > max) e gira o matiz 180°
+            // para as cores voltarem ao tom original.
+            paint: {
+              'raster-brightness-min': 0.8,
+              'raster-brightness-max': 0.18,
+              'raster-hue-rotate': 180,
+              'raster-saturation': -0.2,
+            },
           },
         ],
       },
